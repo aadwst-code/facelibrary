@@ -25,7 +25,7 @@
 
 <div class="container mb-5">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="fw-bold text-dark m-0">⚙️ WST Smart Library <span class="fs-6 text-muted">ระบบเจ้าหน้าที่ (GitHub Server)</span></h3>
+    <h3 class="fw-bold text-dark m-0">⚙️ WST Smart Library <span class="fs-6 text-muted">ระบบเจ้าหน้าที่ (GitHub Fast-Scan)</span></h3>
     <button class="btn btn-sm btn-outline-secondary" onclick="triggerReset()">🔄 รีเซ็ตจอนักเรียน</button>
   </div>
 
@@ -60,7 +60,7 @@
             </div>
           </div>
           <div class="col-md-5 border-start text-center">
-            <h6 class="fw-bold text-secondary mb-2">📸 ตรวจสอบตัวตนด้วยใบหน้า</h6>
+            <h6 class="fw-bold text-secondary mb-2">📸 สแกนด้วยความเร็วสูง (Fast-Scan)</h6>
             <button class="btn btn-sm btn-primary mb-2" onclick="initFaceRecognition()">เปิดกล้องสแกนหน้า</button>
             <div id="video-container"><video id="webcam" autoplay muted></video></div>
             <div id="faceStatus" class="mt-1 text-primary fw-bold small"></div>
@@ -68,76 +68,27 @@
         </div>
       </div>
 
-      <div class="tab-pane fade" id="content-history">
-        <h5 class="fw-bold mb-3 text-indigo">🕒 ประวัติการยืม-คืน 50 รายการล่าสุด</h5>
-        <div class="table-responsive">
-          <table class="table table-bordered table-hover table-history align-middle text-center">
-            <thead><tr><th>ชื่อนักเรียนผู้ยืม</th><th>ชื่อหนังสือ</th><th>วันที่ยืม</th><th>วันที่คืน</th><th>สถานะ</th></tr></thead>
-            <tbody id="history-table-body">
-              <tr><td colspan="5" class="text-center text-muted py-4">กำลังโหลดข้อมูลประวัติ...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="tab-pane fade" id="content-reg-student">
-        <h5 class="fw-bold mb-3 text-primary">👤 ลงทะเบียนนักเรียนใหม่</h5>
-        <div class="row g-3">
-          <div class="col-md-6"><label class="form-label">รหัสนักเรียน</label><input type="text" id="regStdId" class="form-control"></div>
-          <div class="col-md-6"><label class="form-label">ชื่อ - นามสกุล</label><input type="text" id="regStdName" class="form-control"></div>
-          <div class="col-md-12"><label class="form-label">อัปโหลดรูปภาพนักเรียน</label><input type="file" id="regStdPhoto" class="form-control" accept="image/*"></div>
-          <div class="col-12"><button class="btn btn-primary w-100 py-2 fw-bold" onclick="submitNewStudent()">💾 บันทึกข้อมูลนักเรียนใหม่</button></div>
-        </div>
-      </div>
-
-      <div class="tab-pane fade" id="content-reg-book">
-        <h5 class="fw-bold mb-3 text-success">📖 บันทึกหนังสือใหม่</h5>
-        <div class="row g-3">
-          <div class="col-md-4"><label class="form-label">บาร์โค้ดหนังสือ</label><input type="text" id="regBookBarcode" class="form-control"></div>
-          <div class="col-md-8"><label class="form-label">ชื่อหนังสือ</label><input type="text" id="regBookTitle" class="form-control"></div>
-          <div class="col-12"><button class="btn btn-success w-100 py-2 fw-bold" onclick="submitNewBook()">📥 บันทึกหนังสือใหม่</button></div>
-        </div>
-      </div>
-
-      <div class="tab-pane fade" id="content-report">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="fw-bold m-0 text-dark">📋 สรุปรายงานสถิติ</h5>
-          <button class="btn btn-danger fw-bold" onclick="window.print()">🖨️ สั่งพิมพ์เอกสาร</button>
-        </div>
-        <div id="printReportArea" class="p-4 border bg-white rounded text-dark">
-          <div class="text-center mb-4"><h3 class="fw-bold m-0">รายงานสถิติระบบ WST Smart Library</h3><small id="reportPrintTime"></small></div>
-          <table class="table table-bordered text-center align-middle">
-            <thead class="table-light"><tr><th>ช่วงเวลา</th><th>ยอดเข้าใช้งาน</th><th>ยอดการยืม</th><th>ยอดการคืน</th></tr></thead>
-            <tbody>
-              <tr><td class="fw-bold">สถิติรายวัน</td><td id="rep-day-visit">0</td><td id="rep-day-borrow">0</td><td id="rep-day-return">0</td></tr>
-              <tr><td class="fw-bold">สถิติรายเดือน</td><td id="rep-month-visit">0</td><td id="rep-month-borrow">0</td><td id="rep-month-return">0</td></tr>
-              <tr><td class="fw-bold">สถิติรายปี</td><td id="rep-year-visit">0</td><td id="rep-year-borrow">0</td><td id="rep-year-return">0</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <div class="tab-pane fade" id="content-history"><h5 class="fw-bold mb-3 text-indigo">🕒 ประวัติการยืม-คืน 50 รายการล่าสุด</h5><div class="table-responsive"><table class="table table-bordered table-hover table-history align-middle text-center"><thead><tr><th>ชื่อนักเรียนผู้ยืม</th><th>ชื่อหนังสือ</th><th>วันที่ยืม</th><th>วันที่คืน</th><th>สถานะ</th></tr></thead><tbody id="history-table-body"><tr><td colspan="5" class="text-center text-muted py-4">กำลังโหลดข้อมูลประวัติ...</td></tr></tbody></table></div></div>
+      <div class="tab-pane fade" id="content-reg-student"><h5 class="fw-bold mb-3 text-primary">👤 ลงทะเบียนนักเรียนใหม่</h5><div class="row g-3"><div class="col-md-6"><label class="form-label">รหัสนักเรียน</label><input type="text" id="regStdId" class="form-control"></div><div class="col-md-6"><label class="form-label">ชื่อ - นามสกุล</label><input type="text" id="regStdName" class="form-control"></div><div class="col-md-12"><label class="form-label">อัปโหลดรูปภาพนักเรียน</label><input type="file" id="regStdPhoto" class="form-control" accept="image/*"></div><div class="col-12"><button class="btn btn-primary w-100 py-2 fw-bold" onclick="submitNewStudent()">💾 บันทึกข้อมูลนักเรียนใหม่</button></div></div></div>
+      <div class="tab-pane fade" id="content-reg-book"><h5 class="fw-bold mb-3 text-success">📖 บันทึกหนังสือใหม่</h5><div class="row g-3"><div class="col-md-4"><label class="form-label">บาร์โค้ดหนังสือ</label><input type="text" id="regBookBarcode" class="form-control"></div><div class="col-md-8"><label class="form-label">ชื่อหนังสือ</label><input type="text" id="regBookTitle" class="form-control"></div><div class="col-12"><button class="btn btn-success w-100 py-2 fw-bold" onclick="submitNewBook()">📥 บันทึกหนังสือใหม่</button></div></div></div>
+      <div class="tab-pane fade" id="content-report"><div class="d-flex justify-content-between align-items-center mb-3"><h5 class="fw-bold m-0 text-dark">📋 สรุปรายงานสถิติ</h5><button class="btn btn-danger fw-bold" onclick="window.print()">🖨️ สั่งพิมพ์เอกสาร</button></div><div id="printReportArea" class="p-4 border bg-white rounded text-dark"><div class="text-center mb-4"><h3 class="fw-bold m-0">รายงานสถิติระบบ WST Smart Library</h3><small id="reportPrintTime"></small></div><table class="table table-bordered text-center align-middle"><thead class="table-light"><tr><th>ช่วงเวลา</th><th>ยอดเข้าใช้งาน</th><th>ยอดการยืม</th><th>ยอดการคืน</th></tr></thead><tbody><tr><td class="fw-bold">สถิติรายวัน</td><td id="rep-day-visit">0</td><td id="rep-day-borrow">0</td><td id="rep-day-return">0</td></tr><tr><td class="fw-bold">สถิติรายเดือน</td><td id="rep-month-visit">0</td><td id="rep-month-borrow">0</td><td id="rep-month-return">0</td></tr><tr><td class="fw-bold">สถิติรายปี</td><td id="rep-year-visit">0</td><td id="rep-year-borrow">0</td><td id="rep-year-return">0</td></tr></tbody></table></div></div>
     </div>
   </div>
 </div>
 
 <script>
-  // โค้ดถูกเชื่อมต่อกับ URL เว็บแอปของคุณครูเรียบร้อยแล้วครับ
+  // โค้ด URL จาก Google Apps Script (อันเดิม)
   const GAS_URL = "https://script.google.com/macros/s/AKfycbxjHXY9rAhKIfFiybfj5CYKYK2D7jDBlkCtxCee3UmiiSC1Zc2gztqVSrdyZsn_nFv5yg/exec";
 
   var currentActiveStudentId = "";
   var isModelsLoaded = false;
+  var faceMatcher = null; // 🚀 ตัวแปรเก็บฐานข้อมูลใบหน้าไว้ที่เบราว์เซอร์
 
   function callAPI(actionName, dataObj, callbackSuccess) {
     fetch(GAS_URL, {
       method: 'POST',
       body: JSON.stringify(Object.assign({ action: actionName }, dataObj))
-    })
-    .then(res => res.json())
-    .then(callbackSuccess)
-    .catch(err => {
-      Swal.close();
-      console.error(err);
-    });
+    }).then(res => res.json()).then(callbackSuccess).catch(err => { Swal.close(); console.error(err); });
   }
 
   setInterval(function() {
@@ -169,40 +120,71 @@
     } else { Swal.fire('แจ้งเตือน', result.message, 'warning'); }
   }
 
+  // 🚀 ระบบกล้อง Fast-Scan วิเคราะห์ใบหน้าจากหน้าเว็บโดยตรง
   async function initFaceRecognition() {
-    document.getElementById('video-container').style.display = 'block'; var textStatus = document.getElementById('faceStatus');
+    document.getElementById('video-container').style.display = 'block'; 
+    var textStatus = document.getElementById('faceStatus');
+    
+    // โหลดโมเดล AI
     if (!isModelsLoaded) {
-      textStatus.innerText = "โหลด AI ใบหน้าจาก GitHub..."; const MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights';
-      await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL); await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL); await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL); isModelsLoaded = true;
+      textStatus.innerText = "กำลังโหลดระบบ AI..."; 
+      const MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights';
+      await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL); 
+      await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL); 
+      await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL); 
+      isModelsLoaded = true;
     }
-    textStatus.innerText = "กำลังเปิดกล้อง..."; var video = document.getElementById('webcam');
+
+    // โหลดฐานข้อมูลใบหน้าจาก Google Sheets มาเก็บไว้แค่ครั้งเดียว
+    if (!faceMatcher) {
+      textStatus.innerText = "กำลังเตรียมฐานข้อมูลใบหน้า...";
+      await new Promise(resolve => {
+        callAPI('getFaceDatabase', {}, function(data) {
+          if (data && data.length > 0) {
+            const labeledDescriptors = data.map(student => {
+              return new faceapi.LabeledFaceDescriptors(student.id, [new Float32Array(student.descriptor)]);
+            });
+            faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.45); // ตั้งค่าความแม่นยำ
+          }
+          resolve();
+        });
+      });
+    }
+    
+    textStatus.innerText = "กำลังเปิดกล้อง..."; 
+    var video = document.getElementById('webcam');
     
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
       video.srcObject = stream;
       video.addEventListener('play', () => {
         var scanInterval = setInterval(async () => {
-          var detections = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
-          if (detections) {
-            clearInterval(scanInterval); textStatus.innerText = "วิเคราะห์ข้อมูล..."; var descriptorArray = Array.from(detections.descriptor);
-            callAPI('matchFaceRecognition', { capturedDescriptor: descriptorArray, currentMode: getSelectedMode() }, function(res) {
-              if (res.success) {
-                textStatus.innerText = "พบ: " + res.student.name;
-                if(!res.isEntryMode) {
-                  currentActiveStudentId = res.student.id; document.getElementById('sessionStatus').innerText = "เลือกนักเรียนอยู่";
-                  document.getElementById('sessionStatus').className = "badge bg-success mb-1"; document.getElementById('activeStudentName').innerText = res.student.name;
-                }
-                if(res.isEntryMode) Swal.fire('สำเร็จ', res.message, 'success');
-                stream.getTracks().forEach(track => track.stop()); document.getElementById('video-container').style.display = 'none'; 
-                setTimeout(() => callAPI('resetToIdle', {}, function(){}), 4000);
-              } else { textStatus.innerText = "ไม่พบใบหน้า ลองใหม่..."; initFaceRecognition(); }
-            });
+          // สแกนใบหน้าเร็วขึ้นแบบเรียลไทม์ (ทุก 0.4 วินาที)
+          var detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+          
+          if (detection && faceMatcher) {
+            textStatus.innerText = "กำลังวิเคราะห์..."; 
+            // 🚀 เทียบใบหน้าโดยใช้ CPU ของคอมพิวเตอร์ (ไวมาก)
+            const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
+            
+            if (bestMatch.label !== 'unknown') {
+              clearInterval(scanInterval); 
+              textStatus.innerText = "ยืนยันตัวตนสำเร็จ!"; 
+              stream.getTracks().forEach(track => track.stop()); 
+              document.getElementById('video-container').style.display = 'none'; 
+              
+              Swal.showLoading();
+              // จำลองให้เหมือนการสแกนบาร์โค้ด โดยส่งรหัสนักเรียน (label) ไปบันทึกในระบบ
+              callAPI('handleSmartScan', { barcode: bestMatch.label, currentActiveStudentId: currentActiveStudentId, currentMode: getSelectedMode() }, onScanSuccess);
+            } else {
+              textStatus.innerText = "ไม่รู้จักใบหน้า ลองใหม่..."; 
+            }
           }
-        }, 1000);
+        }, 400); // วนลูปเช็คไวๆ
       });
     } catch(err) {
       textStatus.innerText = "❌ กล้องถูกบล็อก";
-      Swal.fire('กล้องไม่ทำงาน', 'กรุณากดเปิดอนุญาตให้ใช้กล้องที่ไอคอนแม่กุญแจมุมบนซ้ายของเบราว์เซอร์ครับ', 'error');
+      Swal.fire('กล้องไม่ทำงาน', 'กดเปิดอนุญาตให้ใช้กล้องที่แม่กุญแจมุมซ้ายบนครับ', 'error');
     }
   }
 
@@ -225,7 +207,14 @@
     var mockDesc = []; for(var i=0; i<128; i++) mockDesc.push((Math.random() * 0.2) - 0.1);
     if (photoFile) { var reader = new FileReader(); reader.onload = function(e) { executeRegStudent(id, name, JSON.stringify(mockDesc), e.target.result); }; reader.readAsDataURL(photoFile); } else { executeRegStudent(id, name, JSON.stringify(mockDesc), ""); }
   }
-  function executeRegStudent(id, name, desc, photo) { Swal.showLoading(); callAPI('registerNewStudent', { id: id, name: name, desc: desc, photo: photo }, function(msg) { Swal.fire('สำเร็จ', msg, 'success'); document.getElementById('regStdId').value = ''; document.getElementById('regStdName').value = ''; }); }
+  function executeRegStudent(id, name, desc, photo) { 
+    Swal.showLoading(); 
+    callAPI('registerNewStudent', { id: id, name: name, desc: desc, photo: photo }, function(msg) { 
+      faceMatcher = null; // รีเซ็ตฐานข้อมูลใบหน้า เมื่อมีเด็กใหม่
+      Swal.fire('สำเร็จ', msg, 'success'); 
+      document.getElementById('regStdId').value = ''; document.getElementById('regStdName').value = ''; 
+    }); 
+  }
   
   function submitNewBook() {
     var data = { barcode: document.getElementById('regBookBarcode').value, title: document.getElementById('regBookTitle').value };
