@@ -110,9 +110,9 @@
           </div>
           
           <div class="col-md-6">
-            <label class="form-label fw-bold text-secondary">ไฟล์ภาพโปรไฟล์ (ถ้ามี)</label>
-            <input type="file" id="regStdPhoto" class="form-control mb-3" accept="image/*">
-            <div class="p-3 bg-light rounded text-center text-muted small border">เมื่อสแกนโครงสร้างใบหน้าสำเร็จ แถบสถานะจะเป็นสีเขียว จากนั้นจึงกดปุ่มบันทึกข้อมูลด้านล่างนี้</div>
+            <label class="form-label fw-bold text-secondary">รหัสรูปภาพ (File ID) จาก Google Drive</label>
+            <input type="text" id="regStdPhoto" class="form-control mb-3" placeholder="เช่น 1VDBZnaptspnYwCQedtsiuMFdCxVuO5Jy">
+            <div class="p-3 bg-light rounded text-center text-muted small border">สแกนใบหน้าให้สำเร็จ แล้วนำ File ID จากฐานข้อมูลเดิมมาวางที่นี่ได้เลย (รูปในไดร์ฟต้องเปิดแชร์ "ทุกคนที่มีลิงก์")</div>
           </div>
           
           <div class="col-12"><button class="btn btn-primary w-100 py-3 fw-bold fs-5" onclick="submitNewStudent()">💾 ขั้นตอนที่ 2: บันทึกข้อมูลนักเรียนใหม่เข้าสู่ระบบ</button></div>
@@ -150,13 +150,14 @@
 </div>
 
 <script>
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbyYJD_xes3YeuaR1IcomNp_lQ6dSwlr_k3m20685q3MVGvOqGb6E4dEweaY1bEw-D5NLw/exec";
+  // URL จาก Apps Script ตัวล่าสุดที่คุณครูเพิ่ง Deploy
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbwUc5-xhlwyb2QWhhHEnfd3xg5T4qP7JC80fzglShYQxYHICMeKiNx_8caOppl4Ihnv5Q/exec";
 
   let currentActiveStudentId = "";
   let faceMatcher = null;
-  let isProcessing = false; // สวิตช์ควบคุมการหน่วงเวลาป้องกันสแกนซ้ำซ้อน
+  let isProcessing = false;
   let isModelsLoaded = false;
-  let capturedFeaturesArray = null; // เก็บข้อมูลอาร์เรย์ใบหน้าที่สแกนได้เพื่อลงทะเบียน
+  let capturedFeaturesArray = null; 
 
   function callAPI(actionName, dataObj, callbackSuccess) {
     fetch(GAS_URL, {
@@ -176,7 +177,6 @@
 
   function getSelectedMode() { return document.querySelector('input[name="systemMode"]:checked').value; }
   
-  // ⚡ เครื่องสแกนบาร์โค้ดทำงาน: รหัสจะคงอยู่ในช่องเคอร์เซอร์ขณะประมวลผล เพื่อให้ตรวจสอบได้
   function checkEnterKey(e) {
     if (e.key === 'Enter') {
       var barcode = document.getElementById('barcodeInput').value;
@@ -191,7 +191,7 @@
     Swal.close();
     if (result.type === 'student') {
       currentActiveStudentId = result.data.id;
-      document.getElementById('barcodeInput').value = result.data.id; // ดึงรหัสไปวางในช่องเคอร์เซอร์ชัดๆ
+      document.getElementById('barcodeInput').value = result.data.id; 
       document.getElementById('sessionStatus').innerText = "เลือกนักเรียนอยู่"; 
       document.getElementById('sessionStatus').className = "badge bg-success mb-1";
       document.getElementById('activeStudentName').innerText = result.data.name;
@@ -203,10 +203,9 @@
     }
   }
 
-  // โหลดโมเดล AI ใบหน้ากลาง
   async function loadFaceAIModels(statusLabel) {
     if (!isModelsLoaded) {
-      statusLabel.innerText = "กำลังดาวน์โหลดแพ็คเกจ AI จาก GitHub...";
+      statusLabel.innerText = "กำลังดาวน์โหลดแพ็คเกจ AI...";
       const MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights';
       await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
       await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
@@ -215,9 +214,8 @@
     }
   }
 
-  // 📸 ส่วนที่ 1: ระบบสแกนใบหน้าหน้าหลัก (เพิ่มการหน่วงเวลาคูลดาวน์ 8 วินาทีอย่างเข้มงวด กันสแกนรัว)
   async function initFaceRecognition() {
-    if (isProcessing) return; // หากระบบกำลังล็อคคูลดาวน์อยู่ ให้ระงับการทำงานทันที
+    if (isProcessing) return; 
     const statusText = document.getElementById('faceStatus');
     document.getElementById('video-container').style.display = 'block';
 
@@ -252,11 +250,11 @@
           if (detection && faceMatcher) {
             const match = faceMatcher.findBestMatch(detection.descriptor);
             if (match.label !== 'unknown') {
-              isProcessing = true; // 🔒 ล็อคระบบตัดวงจรกล้องทันที กันการสแกนซ้ำซ้อนแนวตั้งแคบ
+              isProcessing = true; 
               clearInterval(scanInterval);
               
               statusText.innerText = "จับคู่สำเร็จ รหัส: " + match.label;
-              document.getElementById('barcodeInput').value = match.label; // ⚡ แสดงรหัสที่สแกนพบเข้าไปในช่องเคอร์เซอร์ทันที!
+              document.getElementById('barcodeInput').value = match.label; 
               
               stream.getTracks().forEach(track => track.stop()); 
               document.getElementById('video-container').style.display = 'none';
@@ -265,7 +263,7 @@
               
               callAPI('handleSmartScan', { barcode: match.label, currentActiveStudentId: currentActiveStudentId, currentMode: getSelectedMode() }, function(res) {
                 onScanSuccess(res);
-                setTimeout(() => { isProcessing = false; }, 8000); // ⏳ หน่วงเวลาพักระบบสแกน 8 วินาทีเต็ม เพื่อให้เด็กเดินพ้นหน้าจอกล้องก่อน
+                setTimeout(() => { isProcessing = false; }, 8000); 
               });
             } else {
               statusText.innerText = "กำลังสแกน... โปรดมองที่กล้อง";
@@ -276,7 +274,6 @@
     } catch(err) { statusText.innerText = "❌ กล้องถูกบล็อก"; Swal.fire('ข้อผิดพลาด', 'กรุณาเปิดสิทธิ์ใช้กล้อง', 'error'); }
   }
 
-  // 📸 ส่วนที่ 2: ระบบกล้องสำหรับ "ลงทะเบียนใบหน้าจริงของเด็กใหม่"
   async function startRegCamera() {
     const regStatus = document.getElementById('regFaceStatus');
     document.getElementById('reg-video-container').style.display = 'block';
@@ -293,7 +290,7 @@
         const regInterval = setInterval(async () => {
           const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
           if (detection) {
-            capturedFeaturesArray = Array.from(detection.descriptor); // สแกนจุดไข่ปลา 128 มิติสำเร็จ
+            capturedFeaturesArray = Array.from(detection.descriptor);
             regStatus.innerText = "🟢 สแกนโครงสร้างใบหน้าสำเร็จแล้ว! (พร้อมบันทึกข้อมูล)";
             regStatus.className = "mt-2 text-success fw-bold small text-center";
             clearInterval(regInterval);
@@ -307,40 +304,39 @@
     } catch (err) { Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเปิดกล้องลงทะเบียนได้', 'error'); }
   }
 
-  // ส่งข้อมูลสมัครสมาชิกพร้อมอาร์เรย์ใบหน้าจริงเข้าสู่ฐานข้อมูลเด็กรวดเดียว
+  // ส่งข้อมูลเข้าสู่ระบบ โดยรับค่า File ID เป็น Text แทน
   function submitNewStudent() {
     var id = document.getElementById('regStdId').value;
     var name = document.getElementById('regStdName').value;
-    var photoFile = document.getElementById('regStdPhoto').files[0];
+    var photoId = document.getElementById('regStdPhoto').value.trim(); // รับค่า File ID
     
-    if(!id || !name) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอกรหัสนักเรียนและชื่อ-นามสกุลให้เรียบร้อยครับ', 'warning');
-    if(!capturedFeaturesArray) return Swal.fire('ยังไม่ได้สแกนหน้า', 'กรุณากดเปิดกล้องเพื่อสแกนพิกัดใบหน้าจริงของนักเรียนก่อนครับ', 'warning');
+    if(!id || !name) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอกรหัสนักเรียนและชื่อ-นามสกุล', 'warning');
+    if(!capturedFeaturesArray) return Swal.fire('ยังไม่ได้สแกนหน้า', 'กรุณากดเปิดกล้องเพื่อสแกนพิกัดใบหน้าจริงก่อนครับ', 'warning');
     
     Swal.showLoading();
-    if (photoFile) {
-      var reader = new FileReader();
-      reader.onload = function(e) { executeRegStudent(id, name, JSON.stringify(capturedFeaturesArray), e.target.result); };
-      reader.readAsDataURL(photoFile);
-    } else {
-      executeRegStudent(id, name, JSON.stringify(capturedFeaturesArray), "");
-    }
+    executeRegStudent(id, name, JSON.stringify(capturedFeaturesArray), photoId);
   }
 
   function executeRegStudent(id, name, desc, photo) {
     callAPI('registerNewStudent', { id: id, name: name, desc: desc, photo: photo }, function(msg) {
-      faceMatcher = null; // เคลียร์แคชเพื่อบังคับให้ดาวน์โหลดฐานข้อมูลใบหน้ารุ่นอัปเดตใหม่ทันที
+      callAPI('getFaceDatabase', {}, function(data) {
+        if (data && data.length > 0) {
+          const labeledDescriptors = data.map(s => new faceapi.LabeledFaceDescriptors(s.id, [new Float32Array(s.descriptor)]));
+          faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.45);
+        }
+      });
+
       capturedFeaturesArray = null;
       document.getElementById('regFaceStatus').innerText = "ระบบกล้องยังไม่ได้เปิด";
       document.getElementById('regFaceStatus').className = "mt-2 text-danger fw-bold small text-center";
       document.getElementById('reg-video-container').style.display = 'none';
       document.getElementById('regStdId').value = ''; 
       document.getElementById('regStdName').value = '';
-      document.getElementById('regStdPhoto').value = '';
-      Swal.fire('สำเร็จ', 'ลงทะเบียนประวัตินักเรียนพร้อมพิกัดใบหน้าจริงเรียบร้อยแล้ว!', 'success');
+      document.getElementById('regStdPhoto').value = ''; // เคลียร์ช่อง File ID
+      Swal.fire('สำเร็จ', 'ลงทะเบียนประวัตินักเรียนพร้อมโครงสร้างใบหน้าเรียบร้อยแล้ว!', 'success');
     });
   }
 
-  // ฟังก์ชันสแตนบายประวัติและรายงานสถิติ
   function loadHistory() {
     document.getElementById('history-table-body').innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">กำลังโหลดประวัติ...</td></tr>';
     callAPI('getBorrowHistory', {}, function(data) {
@@ -370,7 +366,7 @@
 
   function triggerAutoResetDisplay() { 
     currentActiveStudentId = ""; 
-    document.getElementById('barcodeInput').value = ""; // เคลียร์ช่องสแกนข้อมูลเมื่อทำรายการเสร็จสิ้น
+    document.getElementById('barcodeInput').value = ""; 
     document.getElementById('sessionStatus').className = "badge bg-secondary mb-1"; 
     document.getElementById('sessionStatus').innerText = "ยังไม่ได้เลือกนักเรียน";
     document.getElementById('activeStudentName').innerText = "-"; 
