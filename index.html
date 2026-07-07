@@ -1,4 +1,3 @@
-https://script.google.com/macros/s/AKfycbxjHXY9rAhKIfFiybfj5CYKYK2D7jDBlkCtxCee3UmiiSC1Zc2gztqVSrdyZsn_nFv5yg/exec
 <!DOCTYPE html>
 <html>
 <head>
@@ -122,13 +121,12 @@ https://script.google.com/macros/s/AKfycbxjHXY9rAhKIfFiybfj5CYKYK2D7jDBlkCtxCee3
 </div>
 
 <script>
-  // ⚠️ วาง URL เว็บแอปจาก Google Apps Script ของคุณครูตรงนี้ครับ
-  const GAS_URL = "ใส่_URL_เว็บแอปที่ได้จากขั้นตอนที่_1_ตรงนี้ครับ";
+  // โค้ดถูกเชื่อมต่อกับ URL เว็บแอปของคุณครูเรียบร้อยแล้วครับ
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbxjHXY9rAhKIfFiybfj5CYKYK2D7jDBlkCtxCee3UmiiSC1Zc2gztqVSrdyZsn_nFv5yg/exec";
 
   var currentActiveStudentId = "";
   var isModelsLoaded = false;
 
-  // ฟังก์ชันกลางส่งข้อมูลหา Google Sheets ผ่าน API ลื่นไหลไม่ติดขัด
   function callAPI(actionName, dataObj, callbackSuccess) {
     fetch(GAS_URL, {
       method: 'POST',
