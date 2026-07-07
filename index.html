@@ -25,14 +25,14 @@
 
 <div class="container mb-5">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="fw-bold text-dark m-0">⚙️ WST Smart Library <span class="fs-6 text-muted">ระบบเจ้าหน้าที่</span></h3>
+    <h3 class="fw-bold text-dark m-0">⚙️ WST Smart Library <span class="fs-6 text-muted">ระบบเจ้าหน้าที่ (GitHub Server)</span></h3>
     <button class="btn btn-sm btn-outline-secondary" onclick="triggerReset()">🔄 รีเซ็ตจอนักเรียน</button>
   </div>
 
   <div class="card main-card p-4">
     <ul class="nav nav-pills mb-4 justify-content-center" id="pills-tab" role="tablist">
       <li class="nav-item"><button class="nav-link active fw-bold" id="tab-scan" data-bs-toggle="pill" data-bs-target="#content-scan" type="button">📥 บริการ ยืม-คืน / เข้าออก</button></li>
-      <li class="nav-item"><button class="nav-link fw-bold text-success" id="tab-announce" data-bs-toggle="pill" data-bs-target="#content-announce" type="button">📢 ตั้งค่าข้อความประชาสัมพันธ์</button></li>
+      <li class="nav-item"><button class="nav-link fw-bold text-success" id="tab-announce" data-bs-toggle="pill" data-bs-target="#content-announce" type="button">📢 ตั้งค่าตัวหนังสือวิ่ง</button></li>
       <li class="nav-item"><button class="nav-link fw-bold text-indigo" id="tab-history" data-bs-toggle="pill" data-bs-target="#content-history" type="button" onclick="loadHistory()">🕒 ประวัติยืม-คืน</button></li>
       <li class="nav-item"><button class="nav-link fw-bold" id="tab-reg-student" data-bs-toggle="pill" data-bs-target="#content-reg-student" type="button">👤 ลงทะเบียนนักเรียน</button></li>
       <li class="nav-item"><button class="nav-link fw-bold" id="tab-reg-book" data-bs-toggle="pill" data-bs-target="#content-reg-book" type="button">📖 เพิ่มหนังสือใหม่</button></li>
@@ -63,8 +63,10 @@
           <div class="col-md-5 border-start text-center">
             <h6 class="fw-bold text-secondary mb-2">📸 สแกนด้วยความเร็วสูง (Fast-Scan)</h6>
             <button class="btn btn-sm btn-primary mb-2" onclick="initFaceRecognition()">เปิดกล้องสแกนหน้า</button>
-            <div id="video-container"><video id="webcam" autoplay muted></video></div>
-            <div id="faceStatus" class="mt-1 text-primary fw-bold small"></div>
+            <div id="video-container">
+                <video id="webcam" autoplay muted></video>
+                <div id="faceStatus" class="mt-2 text-primary fw-bold small"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -74,27 +76,71 @@
         <div class="p-3 bg-light rounded border">
           <div class="mb-3">
             <label class="form-label fw-bold text-dark">พิมพ์ข้อความประชาสัมพันธ์ที่ต้องการ (ข้อความจะวิ่งต่อเนื่องยาวๆ):</label>
-            <textarea id="announcementText" class="form-control" rows="4" placeholder="ตัวอย่างเช่น: ✨ ยินดีต้อนรับสู่ WST Library ห้องสมุดอัจฉริยะโรงเรียนวัดสุทัศน์ ขยายเวลาเปิดให้บริการช่วงสอบนี้ถึงเวลา 17.00 น. ขอเชิญชวนนักเรียนทุกคนมาร่วมกิจกรรมรักการอ่านประจำสัปดาห์นี้เพื่อรับของรางวัลพิเศษแจกฟรีจ้า!"></textarea>
+            <textarea id="announcementText" class="form-control" rows="4" placeholder="ตัวอย่างเช่น: ✨ ยินดีต้อนรับสู่ WST Library..."></textarea>
           </div>
           <button class="btn btn-success fw-bold px-5 py-2" onclick="updateAnnouncement()">💾 อัปเดตข้อความประชาสัมพันธ์ทันที</button>
         </div>
       </div>
 
-      <div class="tab-pane fade" id="content-history"><h5 class="fw-bold mb-3 text-indigo">🕒 ประวัติการยืม-คืน 50 รายการล่าสุด</h5><div class="table-responsive"><table class="table table-bordered table-hover table-history align-middle text-center"><thead><tr><th>ชื่อนักเรียนผู้ยืม</th><th>ชื่อหนังสือ</th><th>วันที่ยืม</th><th>วันที่คืน</th><th>สถานะ</th></tr></thead><tbody id="history-table-body"><tr><td colspan="5" class="text-center text-muted py-4">กำลังโหลดข้อมูลประวัติ...</td></tr></tbody></table></div></div>
-      <div class="tab-pane fade" id="content-reg-student"><h5 class="fw-bold mb-3 text-primary">👤 ลงทะเบียนนักเรียนใหม่</h5><div class="row g-3"><div class="col-md-6"><label class="form-label">รหัสนักเรียน</label><input type="text" id="regStdId" class="form-control"></div><div class="col-md-6"><label class="form-label">ชื่อ - นามสกุล</label><input type="text" id="regStdName" class="form-control"></div><div class="col-md-12"><label class="form-label">อัปโหลดรูปภาพนักเรียน</label><input type="file" id="regStdPhoto" class="form-control" accept="image/*"></div><div class="col-12"><button class="btn btn-primary w-100 py-2 fw-bold" onclick="submitNewStudent()">💾 บันทึกข้อมูลนักเรียนใหม่</button></div></div></div>
-      <div class="tab-pane fade" id="content-reg-book"><h5 class="fw-bold mb-3 text-success">📖 บันทึกหนังสือใหม่</h5><div class="row g-3"><div class="col-md-4"><label class="form-label">บาร์โค้ดหนังสือ</label><input type="text" id="regBookBarcode" class="form-control"></div><div class="col-md-8"><label class="form-label">ชื่อหนังสือ</label><input type="text" id="regBookTitle" class="form-control"></div><div class="col-12"><button class="btn btn-success w-100 py-2 fw-bold" onclick="submitNewBook()">📥 บันทึกหนังสือใหม่</button></div></div></div>
-      <div class="tab-pane fade" id="content-report"><div class="d-flex justify-content-between align-items-center mb-3"><h5 class="fw-bold m-0 text-dark">📋 สรุปรายงานสถิติ</h5><button class="btn btn-danger fw-bold" onclick="window.print()">🖨️ สั่งพิมพ์เอกสาร</button></div><div id="printReportArea" class="p-4 border bg-white rounded text-dark"><div class="text-center mb-4"><h3 class="fw-bold m-0">รายงานสถิติระบบ WST Smart Library</h3><small id="reportPrintTime"></small></div><table class="table table-bordered text-center align-middle"><thead class="table-light"><tr><th>ช่วงเวลา</th><th>ยอดเข้าใช้งาน</th><th>ยอดการยืม</th><th>ยอดการคืน</th></tr></thead><tbody><tr><td class="fw-bold">สถิติรายวัน</td><td id="rep-day-visit">0</td><td id="rep-day-borrow">0</td><td id="rep-day-return">0</td></tr><tr><td class="fw-bold">สถิติรายเดือน</td><td id="rep-month-visit">0</td><td id="rep-month-borrow">0</td><td id="rep-month-return">0</td></tr><tr><td class="fw-bold">สถิติรายปี</td><td id="rep-year-visit">0</td><td id="rep-year-borrow">0</td><td id="rep-year-return">0</td></tr></tbody></table></div></div>
+      <div class="tab-pane fade" id="content-history">
+        <h5 class="fw-bold mb-3 text-indigo">🕒 ประวัติการยืม-คืน 50 รายการล่าสุด</h5>
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover table-history align-middle text-center">
+            <thead><tr><th>ชื่อนักเรียนผู้ยืม</th><th>ชื่อหนังสือ</th><th>วันที่ยืม</th><th>วันที่คืน</th><th>สถานะ</th></tr></thead>
+            <tbody id="history-table-body">
+              <tr><td colspan="5" class="text-center text-muted py-4">กำลังโหลดข้อมูลประวัติ...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tab-pane fade" id="content-reg-student">
+        <h5 class="fw-bold mb-3 text-primary">👤 ลงทะเบียนนักเรียนใหม่</h5>
+        <div class="row g-3">
+          <div class="col-md-6"><label class="form-label">รหัสนักเรียน</label><input type="text" id="regStdId" class="form-control"></div>
+          <div class="col-md-6"><label class="form-label">ชื่อ - นามสกุล</label><input type="text" id="regStdName" class="form-control"></div>
+          <div class="col-md-12"><label class="form-label">อัปโหลดรูปภาพนักเรียน</label><input type="file" id="regStdPhoto" class="form-control" accept="image/*"></div>
+          <div class="col-12"><button class="btn btn-primary w-100 py-2 fw-bold" onclick="submitNewStudent()">💾 บันทึกข้อมูลนักเรียนใหม่</button></div>
+        </div>
+      </div>
+
+      <div class="tab-pane fade" id="content-reg-book">
+        <h5 class="fw-bold mb-3 text-success">📖 บันทึกหนังสือใหม่</h5>
+        <div class="row g-3">
+          <div class="col-md-4"><label class="form-label">บาร์โค้ดหนังสือ</label><input type="text" id="regBookBarcode" class="form-control"></div>
+          <div class="col-md-8"><label class="form-label">ชื่อหนังสือ</label><input type="text" id="regBookTitle" class="form-control"></div>
+          <div class="col-12"><button class="btn btn-success w-100 py-2 fw-bold" onclick="submitNewBook()">📥 บันทึกหนังสือใหม่</button></div>
+        </div>
+      </div>
+
+      <div class="tab-pane fade" id="content-report">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold m-0 text-dark">📋 สรุปรายงานสถิติ</h5>
+          <button class="btn btn-danger fw-bold" onclick="window.print()">🖨️ สั่งพิมพ์เอกสาร</button>
+        </div>
+        <div id="printReportArea" class="p-4 border bg-white rounded text-dark">
+          <div class="text-center mb-4"><h3 class="fw-bold m-0">รายงานสถิติระบบ WST Smart Library</h3><small id="reportPrintTime"></small></div>
+          <table class="table table-bordered text-center align-middle">
+            <thead class="table-light"><tr><th>ช่วงเวลา</th><th>ยอดเข้าใช้งาน</th><th>ยอดการยืม</th><th>ยอดการคืน</th></tr></thead>
+            <tbody>
+              <tr><td class="fw-bold">สถิติรายวัน</td><td id="rep-day-visit">0</td><td id="rep-day-borrow">0</td><td id="rep-day-return">0</td></tr>
+              <tr><td class="fw-bold">สถิติรายเดือน</td><td id="rep-month-visit">0</td><td id="rep-month-borrow">0</td><td id="rep-month-return">0</td></tr>
+              <tr><td class="fw-bold">สถิติรายปี</td><td id="rep-year-visit">0</td><td id="rep-year-borrow">0</td><td id="rep-year-return">0</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
+  // URL ของ Google Apps Script ของคุณครูครับ
   const GAS_URL = "https://script.google.com/macros/s/AKfycbzSjn9hjthXn84_bkFj2okHqP-hxGZk6ryHonyRi5Gc6f62oUIjhdaP_FdbbpLXWwLL0Q/exec";
 
-  var currentActiveStudentId = "";
-  var isModelsLoaded = false;
-  var faceMatcher = null;
-  let isCooldown = false;
+  let currentActiveStudentId = "";
+  let faceMatcher = null;
+  let isProcessing = false; // ตัวแปรสำหรับคูลดาวน์กล้องกันสแกนรัวๆ
 
   function callAPI(actionName, dataObj, callbackSuccess) {
     fetch(GAS_URL, {
@@ -103,26 +149,18 @@
     }).then(res => res.json()).then(callbackSuccess).catch(err => { Swal.close(); console.error(err); });
   }
 
-  // ฟังก์ชันยิงอัปเดตข้อความประชาสัมพันธ์วิ่งขึ้นระบบ
+  // --- ฟังก์ชันอัปเดตตัวหนังสือวิ่ง ---
   function updateAnnouncement() {
     var txt = document.getElementById('announcementText').value;
     if(!txt) return Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อความก่อนบันทึกครับ', 'warning');
     Swal.showLoading();
-    
-    // ยิงส่ง State 'announcement' ไปบันทึกในฝั่งเซิร์ฟเวอร์เพื่อให้จอนักเรียนดึงไปแสดงผลได้ทันที
     callAPI('handleSmartScan', { barcode: "SET_ANNOUNCEMENT_MSG", currentActiveStudentId: txt, currentMode: "admin_config" }, function(res){
-      Swal.fire('อัปเดตสำเร็จ', 'ข้อความประชาสัมพันธ์บนจอนักเรียนเปลี่ยนเรียบร้อยแล้วครับ!', 'success');
+      Swal.fire('อัปเดตสำเร็จ', 'ข้อความวิ่งบนจอนักเรียนเปลี่ยนเรียบร้อยแล้ว!', 'success');
     });
   }
 
-  setInterval(function() {
-    var activeEl = document.activeElement.tagName;
-    var currentTab = document.querySelector('.nav-link.active').id;
-    if (activeEl !== 'INPUT' && activeEl !== 'SELECT' && currentTab === 'tab-scan') document.getElementById('barcodeInput').focus();
-  }, 2000);
-
+  // --- ฟังก์ชันสำหรับสแกนบาร์โค้ดปกติ ---
   function getSelectedMode() { return document.querySelector('input[name="systemMode"]:checked').value; }
-
   function checkEnterKey(e) {
     if (e.key === 'Enter') {
       var barcode = document.getElementById('barcodeInput').value; document.getElementById('barcodeInput').value = '';
@@ -137,55 +175,79 @@
     Swal.close();
     if (result.type === 'student') {
       currentActiveStudentId = result.data.id;
-      document.getElementById('sessionStatus').innerText = "เลือกนักเรียนอยู่"; document.getElementById('sessionStatus').className = "badge bg-success mb-1";
+      document.getElementById('sessionStatus').innerText = "เลือกนักเรียนอยู่"; 
+      document.getElementById('sessionStatus').className = "badge bg-success mb-1";
       document.getElementById('activeStudentName').innerText = result.data.name;
     } else if (result.type === 'book_borrow' || result.type === 'book_return' || result.type === 'entry_success') {
-      Swal.fire('สำเร็จ', result.message || 'บันทึกรายการสำเร็จ', 'success'); triggerAutoResetDisplay();
-    } else { Swal.fire('แจ้งเตือน', result.message, 'warning'); }
+      Swal.fire('สำเร็จ', result.message || 'บันทึกรายการสำเร็จ', 'success'); 
+      triggerAutoResetDisplay();
+    } else { 
+      Swal.fire('แจ้งเตือน', result.message, 'warning'); 
+    }
   }
 
+  // --- ระบบกล้องสแกนหน้าความเร็วสูง (Fast-Scan + กันสแกนซ้ำ) ---
   async function initFaceRecognition() {
-    if (isCooldown) return;
-    document.getElementById('video-container').style.display = 'block'; var textStatus = document.getElementById('faceStatus');
-    if (!isModelsLoaded) {
-      textStatus.innerText = "กำลังโหลดระบบ AI..."; const MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights';
-      await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL); await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL); await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL); isModelsLoaded = true;
-    }
+    const statusText = document.getElementById('faceStatus');
+    document.getElementById('video-container').style.display = 'block';
+
     if (!faceMatcher) {
-      textStatus.innerText = "กำลังเตรียมฐานข้อมูล...";
+      statusText.innerText = "กำลังโหลดโมเดล AI...";
+      const MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights';
+      await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+      await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+      await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+      
+      statusText.innerText = "กำลังซิงค์ฐานข้อมูลนักเรียน...";
       await new Promise(resolve => {
         callAPI('getFaceDatabase', {}, function(data) {
           if (data && data.length > 0) {
-            const labeledDescriptors = data.map(student => new faceapi.LabeledFaceDescriptors(student.id, [new Float32Array(student.descriptor)]));
+            const labeledDescriptors = data.map(s => new faceapi.LabeledFaceDescriptors(s.id, [new Float32Array(s.descriptor)]));
             faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.45);
           }
           resolve();
         });
       });
     }
-    textStatus.innerText = "กำลังเปิดกล้อง..."; var video = document.getElementById('webcam');
+
+    statusText.innerText = "กำลังเปิดกล้อง..."; 
+    const video = document.getElementById('webcam');
+    
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
       video.srcObject = stream;
+      
       video.addEventListener('play', () => {
-        var scanInterval = setInterval(async () => {
-          if (isCooldown) { clearInterval(scanInterval); return; }
-          var detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+        const scanInterval = setInterval(async () => {
+          if (isProcessing) return; // ติดคูลดาวน์ให้รอ
+          
+          const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+          
           if (detection && faceMatcher) {
-            const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
-            if (bestMatch.label !== 'unknown') {
-              isCooldown = true; clearInterval(scanInterval); textStatus.innerText = "ยืนยันตัวตนสำเร็จ!"; stream.getTracks().forEach(track => track.stop()); document.getElementById('video-container').style.display = 'none'; 
-              Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-              callAPI('handleSmartScan', { barcode: bestMatch.label, currentActiveStudentId: currentActiveStudentId, currentMode: getSelectedMode() }, function(res){
-                onScanSuccess(res); setTimeout(() => { isCooldown = false; }, 7000); 
+            const match = faceMatcher.findBestMatch(detection.descriptor);
+            if (match.label !== 'unknown') {
+              isProcessing = true; // ล็อคระบบกันสแกนซ้ำ
+              statusText.innerText = "พบนักเรียน: " + match.label;
+              
+              Swal.fire({ title: 'กำลังบันทึกข้อมูล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+              
+              callAPI('handleSmartScan', { barcode: match.label, currentActiveStudentId: currentActiveStudentId, currentMode: getSelectedMode() }, function(res) {
+                onScanSuccess(res);
+                setTimeout(() => { isProcessing = false; }, 7000); // คูลดาวน์ 7 วินาทีถึงสแกนใหม่ได้
               });
-            } else { textStatus.innerText = "กำลังมองหา..."; }
+            } else {
+              statusText.innerText = "กำลังมองหาใบหน้า...";
+            }
           }
-        }, 500);
+        }, 500); // สแกนทุก 0.5 วิ
       });
-    } catch(err) { textStatus.innerText = "❌ กล้องไม่ทำงาน"; Swal.fire('กล้องไม่ทำงาน', 'ตรวจสอบการอนุญาตกล้อง', 'error'); }
+    } catch(err) {
+      statusText.innerText = "❌ กล้องถูกบล็อก";
+      Swal.fire('ข้อผิดพลาด', 'กรุณาอนุญาตการเข้าถึงกล้องบนเบราว์เซอร์', 'error');
+    }
   }
 
+  // --- ฟังก์ชันอื่นๆ เดิมของระบบ ---
   function loadHistory() {
     document.getElementById('history-table-body').innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">กำลังโหลดประวัติ...</td></tr>';
     callAPI('getBorrowHistory', {}, function(data) {
@@ -220,6 +282,12 @@
   }
   function triggerAutoResetDisplay() { currentActiveStudentId = ""; document.getElementById('sessionStatus').className = "badge bg-secondary mb-1"; document.getElementById('activeStudentName').innerText = "-"; setTimeout(() => callAPI('resetToIdle', {}, function(){}), 5000); }
   function triggerReset() { callAPI('resetToIdle', {}, function(){ Swal.fire('รีเซ็ตสำเร็จ', '', 'success'); }); }
+
+  setInterval(function() {
+    var activeEl = document.activeElement.tagName;
+    var currentTab = document.querySelector('.nav-link.active').id;
+    if (activeEl !== 'INPUT' && activeEl !== 'SELECT' && currentTab === 'tab-scan') document.getElementById('barcodeInput').focus();
+  }, 2000);
 </script>
 </body>
 </html>
