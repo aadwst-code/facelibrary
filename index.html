@@ -11,9 +11,9 @@
     body { background-color: #f1f5f9; font-family: 'Sarabun', sans-serif; padding-top: 20px; }
     .main-card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: none; }
     .nav-pills .nav-link.active { background-color: #2563eb; }
-    #barcodeInput { font-size: 26px; text-align: center; font-weight: bold; border: 2px solid #2563eb; }
-    #video-container { position: relative; width: 100%; max-width: 320px; margin: auto; display: none; }
-    video { width: 100%; border-radius: 8px; transform: scaleX(-1); }
+    #barcodeInput { font-size: 26px; text-align: center; font-weight: bold; border: 2px solid #2563eb; background-color: #fffdf0; }
+    #video-container, #reg-video-container { position: relative; width: 100%; max-width: 320px; margin: auto; display: none; }
+    video { width: 100%; border-radius: 8px; transform: scaleX(-1); border: 3px solid #2563eb; }
     @media print {
       body * { visibility: hidden; } #printReportArea, #printReportArea * { visibility: visible; }
       #printReportArea { position: absolute; left: 0; top: 0; width: 100%; color: black !important; background: white !important;}
@@ -34,7 +34,7 @@
       <li class="nav-item"><button class="nav-link active fw-bold" id="tab-scan" data-bs-toggle="pill" data-bs-target="#content-scan" type="button">📥 บริการ ยืม-คืน / เข้าออก</button></li>
       <li class="nav-item"><button class="nav-link fw-bold text-success" id="tab-announce" data-bs-toggle="pill" data-bs-target="#content-announce" type="button">📢 ตั้งค่าตัวหนังสือวิ่ง</button></li>
       <li class="nav-item"><button class="nav-link fw-bold text-indigo" id="tab-history" data-bs-toggle="pill" data-bs-target="#content-history" type="button" onclick="loadHistory()">🕒 ประวัติยืม-คืน</button></li>
-      <li class="nav-item"><button class="nav-link fw-bold" id="tab-reg-student" data-bs-toggle="pill" data-bs-target="#content-reg-student" type="button">👤 ลงทะเบียนนักเรียน</button></li>
+      <li class="nav-item"><button class="nav-link fw-bold" id="tab-reg-student" data-bs-toggle="pill" data-bs-target="#content-reg-student" type="button">👤 ลงทะเบียนนักเรียน + ใบหน้า</button></li>
       <li class="nav-item"><button class="nav-link fw-bold" id="tab-reg-book" data-bs-toggle="pill" data-bs-target="#content-reg-book" type="button">📖 เพิ่มหนังสือใหม่</button></li>
       <li class="nav-item"><button class="nav-link fw-bold text-danger" id="tab-report" data-bs-toggle="pill" data-bs-target="#content-report" type="button" onclick="loadPrintReport()">📊 พิมพ์รายงาน</button></li>
     </ul>
@@ -54,15 +54,15 @@
                 <label class="form-check-label fw-bold text-success" for="modeEntry">🎒 บันทึก เข้า-ออก ห้องสมุด</label>
               </div>
             </div>
-            <div class="mb-4"><input type="text" id="barcodeInput" class="form-control py-3" placeholder="[ สแกนบาร์โค้ดบัตร / รหัสหนังสือ ]" autofocus onkeypress="checkEnterKey(event)"></div>
+            <div class="mb-4"><input type="text" id="barcodeInput" class="form-control py-3" placeholder="[ สแกนบาร์โค้ดบัตร / รหัสหนังสือ / ผลสแกนใบหน้า ]" autofocus onkeypress="checkEnterKey(event)"></div>
             <div class="p-3 rounded bg-light text-center border">
               <span id="sessionStatus" class="badge bg-secondary mb-1">ยังไม่ได้เลือกนักเรียน</span>
               <h4 id="activeStudentName" class="fw-bold text-dark m-0">-</h4>
             </div>
           </div>
           <div class="col-md-5 border-start text-center">
-            <h6 class="fw-bold text-secondary mb-2">📸 สแกนด้วยความเร็วสูง (Fast-Scan)</h6>
-            <button class="btn btn-sm btn-primary mb-2" onclick="initFaceRecognition()">เปิดกล้องสแกนหน้า</button>
+            <h6 class="fw-bold text-secondary mb-2">📸 สแกนใบหน้าความเร็วสูง (ป้องกันสแกนซ้ำซ้อน)</h6>
+            <button class="btn btn-primary mb-2" onclick="initFaceRecognition()">เปิดกล้องสแกนหน้า</button>
             <div id="video-container">
                 <video id="webcam" autoplay muted></video>
                 <div id="faceStatus" class="mt-2 text-primary fw-bold small"></div>
@@ -76,7 +76,7 @@
         <div class="p-3 bg-light rounded border">
           <div class="mb-3">
             <label class="form-label fw-bold text-dark">พิมพ์ข้อความประชาสัมพันธ์ที่ต้องการ (ความสูงประมาณ 8 ซม. บนหน้าจอหลัก):</label>
-            <textarea id="announcementText" class="form-control" rows="4" placeholder="พิมพ์สิ่งที่คุณครูต้องการประกาศแก่นักเรียนตรงนี้ได้เลยจ้า..."></textarea>
+            <textarea id="announcementText" class="form-control" rows="4" placeholder="พิมพ์ข้อความที่นี่..."></textarea>
           </div>
           <button class="btn btn-success fw-bold px-5 py-2" onclick="updateAnnouncement()">💾 อัปเดตข้อความประชาสัมพันธ์ทันที</button>
         </div>
@@ -95,12 +95,27 @@
       </div>
 
       <div class="tab-pane fade" id="content-reg-student">
-        <h5 class="fw-bold mb-3 text-primary">👤 ลงทะเบียนนักเรียนใหม่</h5>
+        <h5 class="fw-bold mb-3 text-primary">👤 ลงทะเบียนสมาชิกใหม่พร้อมโครงสร้างใบหน้าจริง</h5>
         <div class="row g-3">
-          <div class="col-md-6"><label class="form-label">รหัสนักเรียน</label><input type="text" id="regStdId" class="form-control"></div>
-          <div class="col-md-6"><label class="form-label">ชื่อ - นามสกุล</label><input type="text" id="regStdName" class="form-control"></div>
-          <div class="col-md-12"><label class="form-label">อัปโหลดรูปภาพนักเรียน</label><input type="file" id="regStdPhoto" class="form-control" accept="image/*"></div>
-          <div class="col-12"><button class="btn btn-primary w-100 py-2 fw-bold" onclick="submitNewStudent()">💾 บันทึกข้อมูลนักเรียนใหม่</button></div>
+          <div class="col-md-6"><label class="form-label fw-bold">รหัสนักเรียน / รหัสบัตร</label><input type="text" id="regStdId" class="form-control" placeholder="กรอกรหัสนักเรียน"></div>
+          <div class="col-md-6"><label class="form-label">ชื่อ - นามสกุล</label><input type="text" id="regStdName" class="form-control" placeholder="เด็กชาย / เด็กหญิง..."></div>
+          
+          <div class="col-md-6 border-end">
+            <label class="form-label fw-bold text-danger">📸 ขั้นตอนที่ 1: สแกนพิกัดใบหน้าจริง</label>
+            <button class="btn btn-outline-primary w-100 mb-2" onclick="startRegCamera()">เปิดกล้องสแกนโครงสร้างหน้าเพื่อบันทึกข้อมูล</button>
+            <div id="reg-video-container">
+              <video id="regWebcam" autoplay muted></video>
+              <div id="regFaceStatus" class="mt-2 text-danger fw-bold small text-center">ระบบกล้องยังไม่ได้เปิด</div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <label class="form-label fw-bold text-secondary">ไฟล์ภาพโปรไฟล์ (ถ้ามี)</label>
+            <input type="file" id="regStdPhoto" class="form-control mb-3" accept="image/*">
+            <div class="p-3 bg-light rounded text-center text-muted small border">เมื่อสแกนโครงสร้างใบหน้าสำเร็จ แถบสถานะจะเป็นสีเขียว จากนั้นจึงกดปุ่มบันทึกข้อมูลด้านล่างนี้</div>
+          </div>
+          
+          <div class="col-12"><button class="btn btn-primary w-100 py-3 fw-bold fs-5" onclick="submitNewStudent()">💾 ขั้นตอนที่ 2: บันทึกข้อมูลนักเรียนใหม่เข้าสู่ระบบ</button></div>
         </div>
       </div>
 
@@ -139,7 +154,9 @@
 
   let currentActiveStudentId = "";
   let faceMatcher = null;
-  let isProcessing = false;
+  let isProcessing = false; // สวิตช์ควบคุมการหน่วงเวลาป้องกันสแกนซ้ำซ้อน
+  let isModelsLoaded = false;
+  let capturedFeaturesArray = null; // เก็บข้อมูลอาร์เรย์ใบหน้าที่สแกนได้เพื่อลงทะเบียน
 
   function callAPI(actionName, dataObj, callbackSuccess) {
     fetch(GAS_URL, {
@@ -158,10 +175,15 @@
   }
 
   function getSelectedMode() { return document.querySelector('input[name="systemMode"]:checked').value; }
+  
+  // ⚡ เครื่องสแกนบาร์โค้ดทำงาน: รหัสจะคงอยู่ในช่องเคอร์เซอร์ขณะประมวลผล เพื่อให้ตรวจสอบได้
   function checkEnterKey(e) {
     if (e.key === 'Enter') {
-      var barcode = document.getElementById('barcodeInput').value; document.getElementById('barcodeInput').value = '';
-      if (barcode) { Swal.showLoading(); callAPI('handleSmartScan', { barcode: barcode, currentActiveStudentId: currentActiveStudentId, currentMode: getSelectedMode() }, onScanSuccess); }
+      var barcode = document.getElementById('barcodeInput').value;
+      if (barcode) { 
+        Swal.showLoading(); 
+        callAPI('handleSmartScan', { barcode: barcode, currentActiveStudentId: currentActiveStudentId, currentMode: getSelectedMode() }, onScanSuccess); 
+      }
     }
   }
 
@@ -169,22 +191,40 @@
     Swal.close();
     if (result.type === 'student') {
       currentActiveStudentId = result.data.id;
-      document.getElementById('sessionStatus').innerText = "เลือกนักเรียนอยู่"; document.getElementById('sessionStatus').className = "badge bg-success mb-1";
+      document.getElementById('barcodeInput').value = result.data.id; // ดึงรหัสไปวางในช่องเคอร์เซอร์ชัดๆ
+      document.getElementById('sessionStatus').innerText = "เลือกนักเรียนอยู่"; 
+      document.getElementById('sessionStatus').className = "badge bg-success mb-1";
       document.getElementById('activeStudentName').innerText = result.data.name;
     } else if (result.type === 'book_borrow' || result.type === 'book_return' || result.type === 'entry_success') {
-      Swal.fire('สำเร็จ', result.message || 'บันทึกรายการสำเร็จ', 'success'); triggerAutoResetDisplay();
-    } else { Swal.fire('แจ้งเตือน', result.message, 'warning'); }
+      Swal.fire('สำเร็จ', result.message || 'บันทึกรายการสำเร็จ', 'success'); 
+      triggerAutoResetDisplay();
+    } else { 
+      Swal.fire('แจ้งเตือน', result.message, 'warning'); 
+    }
   }
 
+  // โหลดโมเดล AI ใบหน้ากลาง
+  async function loadFaceAIModels(statusLabel) {
+    if (!isModelsLoaded) {
+      statusLabel.innerText = "กำลังดาวน์โหลดแพ็คเกจ AI จาก GitHub...";
+      const MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights';
+      await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+      await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+      await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+      isModelsLoaded = true;
+    }
+  }
+
+  // 📸 ส่วนที่ 1: ระบบสแกนใบหน้าหน้าหลัก (เพิ่มการหน่วงเวลาคูลดาวน์ 8 วินาทีอย่างเข้มงวด กันสแกนรัว)
   async function initFaceRecognition() {
-    if (isProcessing) return;
+    if (isProcessing) return; // หากระบบกำลังล็อคคูลดาวน์อยู่ ให้ระงับการทำงานทันที
     const statusText = document.getElementById('faceStatus');
     document.getElementById('video-container').style.display = 'block';
+
+    await loadFaceAIModels(statusText);
+
     if (!faceMatcher) {
-      statusText.innerText = "กำลังโหลดระบบ AI...";
-      const MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights';
-      await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL); await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL); await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
-      statusText.innerText = "กำลังซิงค์ฐานข้อมูลใบหน้า...";
+      statusText.innerText = "กำลังซิงค์ฐานข้อมูลโครงสร้างใบหน้า...";
       await new Promise(resolve => {
         callAPI('getFaceDatabase', {}, function(data) {
           if (data && data.length > 0) {
@@ -195,28 +235,112 @@
         });
       });
     }
-    statusText.innerText = "กำลังเปิดกล้อง..."; const video = document.getElementById('webcam');
+
+    statusText.innerText = "กำลังเปิดกล้องเว็บแคม..."; 
+    const video = document.getElementById('webcam');
+    
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: {} }); video.srcObject = stream;
+      const stream = await navigator.mediaDevices.getUserMedia({ video: {} }); 
+      video.srcObject = stream;
+      
       video.addEventListener('play', () => {
         const scanInterval = setInterval(async () => {
-          if (isProcessing) return;
+          if (isProcessing) { clearInterval(scanInterval); return; }
+          
           const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+          
           if (detection && faceMatcher) {
             const match = faceMatcher.findBestMatch(detection.descriptor);
             if (match.label !== 'unknown') {
-              isProcessing = true; statusText.innerText = "พบนักเรียน: " + match.label;
-              Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+              isProcessing = true; // 🔒 ล็อคระบบตัดวงจรกล้องทันที กันการสแกนซ้ำซ้อนแนวตั้งแคบ
+              clearInterval(scanInterval);
+              
+              statusText.innerText = "จับคู่สำเร็จ รหัส: " + match.label;
+              document.getElementById('barcodeInput').value = match.label; // ⚡ แสดงรหัสที่สแกนพบเข้าไปในช่องเคอร์เซอร์ทันที!
+              
+              stream.getTracks().forEach(track => track.stop()); 
+              document.getElementById('video-container').style.display = 'none';
+              
+              Swal.fire({ title: 'กำลังบันทึกข้อมูลใบหน้า...', text: 'รหัสนักเรียน: ' + match.label, allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+              
               callAPI('handleSmartScan', { barcode: match.label, currentActiveStudentId: currentActiveStudentId, currentMode: getSelectedMode() }, function(res) {
-                onScanSuccess(res); setTimeout(() => { isProcessing = false; }, 7000);
+                onScanSuccess(res);
+                setTimeout(() => { isProcessing = false; }, 8000); // ⏳ หน่วงเวลาพักระบบสแกน 8 วินาทีเต็ม เพื่อให้เด็กเดินพ้นหน้าจอกล้องก่อน
               });
-            } else { statusText.innerText = "กำลังค้นหาใบหน้า..."; }
+            } else {
+              statusText.innerText = "กำลังสแกน... โปรดมองที่กล้อง";
+            }
           }
         }, 500);
       });
     } catch(err) { statusText.innerText = "❌ กล้องถูกบล็อก"; Swal.fire('ข้อผิดพลาด', 'กรุณาเปิดสิทธิ์ใช้กล้อง', 'error'); }
   }
 
+  // 📸 ส่วนที่ 2: ระบบกล้องสำหรับ "ลงทะเบียนใบหน้าจริงของเด็กใหม่"
+  async function startRegCamera() {
+    const regStatus = document.getElementById('regFaceStatus');
+    document.getElementById('reg-video-container').style.display = 'block';
+    
+    await loadFaceAIModels(regStatus);
+    regStatus.innerText = "กำลังเปิดกล้องจับพิกัด...";
+    
+    const video = document.getElementById('regWebcam');
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+      video.srcObject = stream;
+      
+      video.addEventListener('play', () => {
+        const regInterval = setInterval(async () => {
+          const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+          if (detection) {
+            capturedFeaturesArray = Array.from(detection.descriptor); // สแกนจุดไข่ปลา 128 มิติสำเร็จ
+            regStatus.innerText = "🟢 สแกนโครงสร้างใบหน้าสำเร็จแล้ว! (พร้อมบันทึกข้อมูล)";
+            regStatus.className = "mt-2 text-success fw-bold small text-center";
+            clearInterval(regInterval);
+            stream.getTracks().forEach(track => track.stop());
+          } else {
+            regStatus.innerText = "❌ ไม่พบใบหน้า กรุณาขยับหน้าให้อยู่ตรงกลางกล้อง...";
+            regStatus.className = "mt-2 text-danger fw-bold small text-center";
+          }
+        }, 600);
+      });
+    } catch (err) { Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเปิดกล้องลงทะเบียนได้', 'error'); }
+  }
+
+  // ส่งข้อมูลสมัครสมาชิกพร้อมอาร์เรย์ใบหน้าจริงเข้าสู่ฐานข้อมูลเด็กรวดเดียว
+  function submitNewStudent() {
+    var id = document.getElementById('regStdId').value;
+    var name = document.getElementById('regStdName').value;
+    var photoFile = document.getElementById('regStdPhoto').files[0];
+    
+    if(!id || !name) return Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอกรหัสนักเรียนและชื่อ-นามสกุลให้เรียบร้อยครับ', 'warning');
+    if(!capturedFeaturesArray) return Swal.fire('ยังไม่ได้สแกนหน้า', 'กรุณากดเปิดกล้องเพื่อสแกนพิกัดใบหน้าจริงของนักเรียนก่อนครับ', 'warning');
+    
+    Swal.showLoading();
+    if (photoFile) {
+      var reader = new FileReader();
+      reader.onload = function(e) { executeRegStudent(id, name, JSON.stringify(capturedFeaturesArray), e.target.result); };
+      reader.readAsDataURL(photoFile);
+    } else {
+      executeRegStudent(id, name, JSON.stringify(capturedFeaturesArray), "");
+    }
+  }
+
+  function executeRegStudent(id, name, desc, photo) {
+    callAPI('registerNewStudent', { id: id, name: name, desc: desc, photo: photo }, function(msg) {
+      faceMatcher = null; // เคลียร์แคชเพื่อบังคับให้ดาวน์โหลดฐานข้อมูลใบหน้ารุ่นอัปเดตใหม่ทันที
+      capturedFeaturesArray = null;
+      document.getElementById('regFaceStatus').innerText = "ระบบกล้องยังไม่ได้เปิด";
+      document.getElementById('regFaceStatus').className = "mt-2 text-danger fw-bold small text-center";
+      document.getElementById('reg-video-container').style.display = 'none';
+      document.getElementById('regStdId').value = ''; 
+      document.getElementById('regStdName').value = '';
+      document.getElementById('regStdPhoto').value = '';
+      Swal.fire('สำเร็จ', 'ลงทะเบียนประวัตินักเรียนพร้อมพิกัดใบหน้าจริงเรียบร้อยแล้ว!', 'success');
+    });
+  }
+
+  // ฟังก์ชันสแตนบายประวัติและรายงานสถิติ
   function loadHistory() {
     document.getElementById('history-table-body').innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">กำลังโหลดประวัติ...</td></tr>';
     callAPI('getBorrowHistory', {}, function(data) {
@@ -228,18 +352,13 @@
       document.getElementById('history-table-body').innerHTML = html;
     });
   }
-  function submitNewStudent() {
-    var id = document.getElementById('regStdId').value, name = document.getElementById('regStdName').value, photoFile = document.getElementById('regStdPhoto').files[0];
-    if(!id || !name) return Swal.fire('ผิดพลาด', 'กรุณากรอกรหัสและชื่อ', 'error');
-    var mockDesc = []; for(var i=0; i<128; i++) mockDesc.push((Math.random() * 0.2) - 0.1);
-    if (photoFile) { var reader = new FileReader(); reader.onload = function(e) { executeRegStudent(id, name, JSON.stringify(mockDesc), e.target.result); }; reader.readAsDataURL(photoFile); } else { executeRegStudent(id, name, JSON.stringify(mockDesc), ""); }
-  }
-  function executeRegStudent(id, name, desc, photo) { Swal.showLoading(); callAPI('registerNewStudent', { id: id, name: name, desc: desc, photo: photo }, function(msg) { faceMatcher = null; Swal.fire('สำเร็จ', msg, 'success'); document.getElementById('regStdId').value = ''; document.getElementById('regStdName').value = ''; }); }
+
   function submitNewBook() {
     var data = { barcode: document.getElementById('regBookBarcode').value, title: document.getElementById('regBookTitle').value };
     if(!data.barcode || !data.title) return Swal.fire('ผิดพลาด', 'กรุณาระบุข้อมูลให้ครบ', 'error'); Swal.showLoading();
     callAPI('registerNewBook', { data: data }, function(msg) { Swal.fire('สำเร็จ', msg, 'success'); document.getElementById('regBookBarcode').value = ''; document.getElementById('regBookTitle').value = ''; });
   }
+
   function loadPrintReport() {
     document.getElementById('reportPrintTime').innerText = "พิมพ์ข้อมูล ณ วันที่: " + new Date().toLocaleString('th-TH');
     callAPI('getFullReportStats', {}, function(report) {
@@ -248,8 +367,18 @@
       document.getElementById('rep-year-visit').innerText = report.year.visit; document.getElementById('rep-year-borrow').innerText = report.year.borrow; document.getElementById('rep-year-return').innerText = report.year.return;
     });
   }
-  function triggerAutoResetDisplay() { currentActiveStudentId = ""; document.getElementById('sessionStatus').className = "badge bg-secondary mb-1"; document.getElementById('activeStudentName').innerText = "-"; setTimeout(() => callAPI('resetToIdle', {}, function(){}), 5000); }
-  function triggerReset() { callAPI('resetToIdle', {}, function(){ Swal.fire('รีเซ็ตสำเร็จ', '', 'success'); }); }
+
+  function triggerAutoResetDisplay() { 
+    currentActiveStudentId = ""; 
+    document.getElementById('barcodeInput').value = ""; // เคลียร์ช่องสแกนข้อมูลเมื่อทำรายการเสร็จสิ้น
+    document.getElementById('sessionStatus').className = "badge bg-secondary mb-1"; 
+    document.getElementById('sessionStatus').innerText = "ยังไม่ได้เลือกนักเรียน";
+    document.getElementById('activeStudentName').innerText = "-"; 
+    setTimeout(() => callAPI('resetToIdle', {}, function(){}), 5000); 
+  }
+  
+  function triggerReset() { callAPI('resetToIdle', {}, function(){ document.getElementById('barcodeInput').value = ""; Swal.fire('รีเซ็ตสำเร็จ', '', 'success'); }); }
+
   setInterval(function() {
     var activeEl = document.activeElement.tagName; var currentTab = document.querySelector('.nav-link.active').id;
     if (activeEl !== 'INPUT' && activeEl !== 'SELECT' && currentTab === 'tab-scan') document.getElementById('barcodeInput').focus();
