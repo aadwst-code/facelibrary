@@ -75,8 +75,8 @@
         <h5 class="fw-bold mb-3 text-success">📢 ตั้งค่าข้อความประชาสัมพันธ์บอร์ดอักษรวิ่งของนักเรียน</h5>
         <div class="p-3 bg-light rounded border">
           <div class="mb-3">
-            <label class="form-label fw-bold text-dark">พิมพ์ข้อความประชาสัมพันธ์ที่ต้องการ (ข้อความจะวิ่งต่อเนื่องยาวๆ):</label>
-            <textarea id="announcementText" class="form-control" rows="4" placeholder="ตัวอย่างเช่น: ✨ ยินดีต้อนรับสู่ WST Library..."></textarea>
+            <label class="form-label fw-bold text-dark">พิมพ์ข้อความประชาสัมพันธ์ที่ต้องการ (ความสูงประมาณ 8 ซม. บนหน้าจอหลัก):</label>
+            <textarea id="announcementText" class="form-control" rows="4" placeholder="พิมพ์สิ่งที่คุณครูต้องการประกาศแก่นักเรียนตรงนี้ได้เลยจ้า..."></textarea>
           </div>
           <button class="btn btn-success fw-bold px-5 py-2" onclick="updateAnnouncement()">💾 อัปเดตข้อความประชาสัมพันธ์ทันที</button>
         </div>
@@ -135,12 +135,11 @@
 </div>
 
 <script>
-  // URL ของ Google Apps Script ของคุณครูครับ
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbzSjn9hjthXn84_bkFj2okHqP-hxGZk6ryHonyRi5Gc6f62oUIjhdaP_FdbbpLXWwLL0Q/exec";
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbyYJD_xes3YeuaR1IcomNp_lQ6dSwlr_k3m20685q3MVGvOqGb6E4dEweaY1bEw-D5NLw/exec";
 
   let currentActiveStudentId = "";
   let faceMatcher = null;
-  let isProcessing = false; // ตัวแปรสำหรับคูลดาวน์กล้องกันสแกนรัวๆ
+  let isProcessing = false;
 
   function callAPI(actionName, dataObj, callbackSuccess) {
     fetch(GAS_URL, {
@@ -149,7 +148,6 @@
     }).then(res => res.json()).then(callbackSuccess).catch(err => { Swal.close(); console.error(err); });
   }
 
-  // --- ฟังก์ชันอัปเดตตัวหนังสือวิ่ง ---
   function updateAnnouncement() {
     var txt = document.getElementById('announcementText').value;
     if(!txt) return Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อความก่อนบันทึกครับ', 'warning');
@@ -159,15 +157,11 @@
     });
   }
 
-  // --- ฟังก์ชันสำหรับสแกนบาร์โค้ดปกติ ---
   function getSelectedMode() { return document.querySelector('input[name="systemMode"]:checked').value; }
   function checkEnterKey(e) {
     if (e.key === 'Enter') {
       var barcode = document.getElementById('barcodeInput').value; document.getElementById('barcodeInput').value = '';
-      if (barcode) { 
-        Swal.showLoading(); 
-        callAPI('handleSmartScan', { barcode: barcode, currentActiveStudentId: currentActiveStudentId, currentMode: getSelectedMode() }, onScanSuccess);
-      }
+      if (barcode) { Swal.showLoading(); callAPI('handleSmartScan', { barcode: barcode, currentActiveStudentId: currentActiveStudentId, currentMode: getSelectedMode() }, onScanSuccess); }
     }
   }
 
@@ -175,30 +169,22 @@
     Swal.close();
     if (result.type === 'student') {
       currentActiveStudentId = result.data.id;
-      document.getElementById('sessionStatus').innerText = "เลือกนักเรียนอยู่"; 
-      document.getElementById('sessionStatus').className = "badge bg-success mb-1";
+      document.getElementById('sessionStatus').innerText = "เลือกนักเรียนอยู่"; document.getElementById('sessionStatus').className = "badge bg-success mb-1";
       document.getElementById('activeStudentName').innerText = result.data.name;
     } else if (result.type === 'book_borrow' || result.type === 'book_return' || result.type === 'entry_success') {
-      Swal.fire('สำเร็จ', result.message || 'บันทึกรายการสำเร็จ', 'success'); 
-      triggerAutoResetDisplay();
-    } else { 
-      Swal.fire('แจ้งเตือน', result.message, 'warning'); 
-    }
+      Swal.fire('สำเร็จ', result.message || 'บันทึกรายการสำเร็จ', 'success'); triggerAutoResetDisplay();
+    } else { Swal.fire('แจ้งเตือน', result.message, 'warning'); }
   }
 
-  // --- ระบบกล้องสแกนหน้าความเร็วสูง (Fast-Scan + กันสแกนซ้ำ) ---
   async function initFaceRecognition() {
+    if (isProcessing) return;
     const statusText = document.getElementById('faceStatus');
     document.getElementById('video-container').style.display = 'block';
-
     if (!faceMatcher) {
-      statusText.innerText = "กำลังโหลดโมเดล AI...";
+      statusText.innerText = "กำลังโหลดระบบ AI...";
       const MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights';
-      await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-      await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-      await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
-      
-      statusText.innerText = "กำลังซิงค์ฐานข้อมูลนักเรียน...";
+      await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL); await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL); await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+      statusText.innerText = "กำลังซิงค์ฐานข้อมูลใบหน้า...";
       await new Promise(resolve => {
         callAPI('getFaceDatabase', {}, function(data) {
           if (data && data.length > 0) {
@@ -209,45 +195,28 @@
         });
       });
     }
-
-    statusText.innerText = "กำลังเปิดกล้อง..."; 
-    const video = document.getElementById('webcam');
-    
+    statusText.innerText = "กำลังเปิดกล้อง..."; const video = document.getElementById('webcam');
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
-      video.srcObject = stream;
-      
+      const stream = await navigator.mediaDevices.getUserMedia({ video: {} }); video.srcObject = stream;
       video.addEventListener('play', () => {
         const scanInterval = setInterval(async () => {
-          if (isProcessing) return; // ติดคูลดาวน์ให้รอ
-          
+          if (isProcessing) return;
           const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
-          
           if (detection && faceMatcher) {
             const match = faceMatcher.findBestMatch(detection.descriptor);
             if (match.label !== 'unknown') {
-              isProcessing = true; // ล็อคระบบกันสแกนซ้ำ
-              statusText.innerText = "พบนักเรียน: " + match.label;
-              
-              Swal.fire({ title: 'กำลังบันทึกข้อมูล...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-              
+              isProcessing = true; statusText.innerText = "พบนักเรียน: " + match.label;
+              Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
               callAPI('handleSmartScan', { barcode: match.label, currentActiveStudentId: currentActiveStudentId, currentMode: getSelectedMode() }, function(res) {
-                onScanSuccess(res);
-                setTimeout(() => { isProcessing = false; }, 7000); // คูลดาวน์ 7 วินาทีถึงสแกนใหม่ได้
+                onScanSuccess(res); setTimeout(() => { isProcessing = false; }, 7000);
               });
-            } else {
-              statusText.innerText = "กำลังมองหาใบหน้า...";
-            }
+            } else { statusText.innerText = "กำลังค้นหาใบหน้า..."; }
           }
-        }, 500); // สแกนทุก 0.5 วิ
+        }, 500);
       });
-    } catch(err) {
-      statusText.innerText = "❌ กล้องถูกบล็อก";
-      Swal.fire('ข้อผิดพลาด', 'กรุณาอนุญาตการเข้าถึงกล้องบนเบราว์เซอร์', 'error');
-    }
+    } catch(err) { statusText.innerText = "❌ กล้องถูกบล็อก"; Swal.fire('ข้อผิดพลาด', 'กรุณาเปิดสิทธิ์ใช้กล้อง', 'error'); }
   }
 
-  // --- ฟังก์ชันอื่นๆ เดิมของระบบ ---
   function loadHistory() {
     document.getElementById('history-table-body').innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">กำลังโหลดประวัติ...</td></tr>';
     callAPI('getBorrowHistory', {}, function(data) {
@@ -259,7 +228,6 @@
       document.getElementById('history-table-body').innerHTML = html;
     });
   }
-
   function submitNewStudent() {
     var id = document.getElementById('regStdId').value, name = document.getElementById('regStdName').value, photoFile = document.getElementById('regStdPhoto').files[0];
     if(!id || !name) return Swal.fire('ผิดพลาด', 'กรุณากรอกรหัสและชื่อ', 'error');
@@ -282,10 +250,8 @@
   }
   function triggerAutoResetDisplay() { currentActiveStudentId = ""; document.getElementById('sessionStatus').className = "badge bg-secondary mb-1"; document.getElementById('activeStudentName').innerText = "-"; setTimeout(() => callAPI('resetToIdle', {}, function(){}), 5000); }
   function triggerReset() { callAPI('resetToIdle', {}, function(){ Swal.fire('รีเซ็ตสำเร็จ', '', 'success'); }); }
-
   setInterval(function() {
-    var activeEl = document.activeElement.tagName;
-    var currentTab = document.querySelector('.nav-link.active').id;
+    var activeEl = document.activeElement.tagName; var currentTab = document.querySelector('.nav-link.active').id;
     if (activeEl !== 'INPUT' && activeEl !== 'SELECT' && currentTab === 'tab-scan') document.getElementById('barcodeInput').focus();
   }, 2000);
 </script>
